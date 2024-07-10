@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
+# Register your models here.
+
 class Usuario(AbstractUser):
     direccion = models.CharField(max_length=255)
     numero_de_telefono = models.CharField(max_length=10)
@@ -61,7 +63,13 @@ class Producto(models.Model):
 
 class Pedido(models.Model):
     cliente = models.ForeignKey(Usuario, related_name='pedidos', on_delete=models.CASCADE)
-    fecha = models.DateField()
+    fecha_pedido = models.DateTimeField(
+        auto_now_add=True, 
+        help_text='Fecha y hora en que se realizó el pedido.'
+    )
+    fecha_entrega = models.DateField(
+        help_text='Fecha deseada para la entrega del pedido.'
+    )
     direccion_entrega = models.CharField(max_length=250)
     ciudad_entrega = models.CharField(max_length=100)
     codigo_postal_entrega = models.CharField(max_length=10)
@@ -75,11 +83,28 @@ class Pedido(models.Model):
         return f'Pedido {self.id}'
 
 class Reseña(models.Model):
-    producto = models.ForeignKey(Producto, related_name='reseñas', on_delete=models.CASCADE)
-    cliente = models.ForeignKey(Usuario, related_name='reseñas', on_delete=models.CASCADE)
-    comentario = models.TextField()
-    calificacion = models.PositiveIntegerField()
-    fecha = models.DateTimeField(auto_now_add=True)
+    producto = models.ForeignKey(
+        Producto, 
+        related_name='reseñas', 
+        on_delete=models.CASCADE,
+        help_text='Producto al que se refiere la reseña.'
+    )
+    cliente = models.ForeignKey(
+        Usuario, 
+        related_name='reseñas', 
+        on_delete=models.CASCADE,
+        help_text='Cliente que escribió la reseña.'
+    )
+    comentario = models.TextField(
+        help_text='Comentario del cliente sobre el producto.'
+    )
+    calificacion = models.PositiveIntegerField(
+        help_text='Calificación del producto (1-5).'
+    )
+    fecha = models.DateTimeField(
+        auto_now_add=True,
+        help_text='Fecha en que se escribió la reseña.'
+    )
 
     class Meta:
         verbose_name = 'reseña'
