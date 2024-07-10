@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
-# Crea tus modelos aquí.
-
 class Usuario(AbstractUser):
     direccion = models.CharField(max_length=255)
     numero_de_telefono = models.CharField(max_length=10)
@@ -21,7 +19,10 @@ class Usuario(AbstractUser):
         help_text=('Permisos específicos para este usuario.'),
         verbose_name=('permisos de usuario'),
     )
-    
+
+    def __str__(self):
+        return self.username
+
 class Categoria(models.Model):
     nombre = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
@@ -86,4 +87,4 @@ class Reseña(models.Model):
         ordering = ['-fecha']
 
     def __str__(self):
-        return f'Reseña de {self.cliente} para {self.producto}'     
+        return f'Reseña de {self.cliente} para {self.producto}'
