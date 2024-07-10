@@ -30,7 +30,6 @@ class CategoriaAdmin(admin.ModelAdmin):
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'slug', 'precio', 'cantidad', 'disponibilidad', 'creado', 'actualizado']
-    search_fields = ['nombre', 'slug']
     list_filter = ['disponibilidad', 'creado', 'actualizado']
     list_editable = ['precio', 'cantidad', 'disponibilidad']
     prepopulated_fields = {'slug': ('nombre',)}
@@ -38,9 +37,7 @@ class ProductoAdmin(admin.ModelAdmin):
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
     list_display = ['cliente', 'fecha', 'direccion_entrega', 'ciudad_entrega', 'codigo_postal_entrega', 'pagado']
-    search_fields = ('cliente__username', 'direccion_entrega', 'ciudad_entrega', 'codigo_postal_entrega')
     list_filter = ['pagado', 'fecha']
-    date_hierarchy = 'fecha_pedido'
 
 @admin.register(Reseña)
 class ReseñaAdmin(admin.ModelAdmin):

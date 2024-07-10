@@ -1,40 +1,30 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
+# Crea tus modelos aquí.
+
 class Usuario(AbstractUser):
-    direccion = models.CharField(
-        max_length=255, 
-        help_text='Dirección del usuario.'
-    )
-    numero_de_telefono = models.CharField(
-        max_length=10, 
-        help_text='Número de teléfono del usuario.'
-    )
+    direccion = models.CharField(max_length=255)
+    numero_de_telefono = models.CharField(max_length=10)
     grupos = models.ManyToManyField(
         Group,
-        related_name='usuarios_con_grupos',
+        related_name='usuarios_con_grupos',  # Cambiamos el related_name
         blank=True,
-        help_text='Los grupos a los que pertenece este usuario.',
-        verbose_name='grupos',
+        help_text=('Los grupos a los que pertenece este usuario. Un usuario obtendrá todos los permisos '
+                   'otorgados a cada uno de sus grupos.'),
+        verbose_name=('grupos'),
     )
     permisos_de_usuario = models.ManyToManyField(
         Permission,
-        related_name='usuarios_con_permisos',
+        related_name='usuarios_con_permisos',  # Cambiamos el related_name
         blank=True,
-        help_text='Permisos específicos para este usuario.',
-        verbose_name='permisos de usuario',
+        help_text=('Permisos específicos para este usuario.'),
+        verbose_name=('permisos de usuario'),
     )
-
+    
 class Categoria(models.Model):
-    nombre = models.CharField(
-        max_length=200, 
-        help_text='Nombre de la categoría.'
-    )
-    slug = models.SlugField(
-        max_length=200, 
-        unique=True, 
-        help_text='Slug único para la categoría.'
-    )
+    nombre = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
 
     class Meta:
         ordering = ['nombre']
@@ -45,51 +35,17 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-class Producto(models.Model): 
-    categoria = models.ForeignKey(
-        Categoria, 
-        related_name='productos', 
-        on_delete=models.CASCADE,
-        help_text='Categoría a la que pertenece el producto.'
-    )
-    nombre = models.CharField(
-        max_length=200, 
-        help_text='Nombre del producto.'
-    )
-    slug = models.SlugField(
-        max_length=200, 
-        help_text='Slug del producto.'
-    )
-    imagen = models.ImageField(
-        upload_to='productos/%Y/%m/%d', 
-        blank=True,
-        help_text='Imagen del producto.'
-    )
-    descripcion = models.TextField(
-        blank=True,
-        help_text='Descripción del producto.'
-    )
-    precio = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        help_text='Precio del producto.'
-    )
-    disponibilidad = models.BooleanField(
-        default=False,
-        help_text='Indica si el producto está disponible.'
-    )
-    cantidad = models.IntegerField(
-        default=0,
-        help_text='Cantidad de productos en stock.'
-    )
-    creado = models.DateTimeField(
-        auto_now_add=True,
-        help_text='Fecha de creación del producto.'
-    )
-    actualizado = models.DateTimeField(
-        auto_now=True,
-        help_text='Fecha de última actualización del producto.'
-    )
+class Producto(models.Model):
+    categoria = models.ForeignKey(Categoria, related_name='productos', on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200)
+    imagen = models.ImageField(upload_to='productos/%Y/%m/%d', blank=True)
+    descripcion = models.TextField(blank=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    disponibilidad = models.BooleanField(default=False)
+    cantidad = models.IntegerField(default=0)
+    creado = models.DateTimeField(auto_now_add=True)
+    actualizado = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['nombre']
@@ -103,35 +59,12 @@ class Producto(models.Model):
         return self.nombre
 
 class Pedido(models.Model):
-    cliente = models.ForeignKey(
-        Usuario, 
-        related_name='pedidos', 
-        on_delete=models.CASCADE,
-        help_text='Cliente que realizó el pedido.'
-    )
-    fecha_pedido = models.DateTimeField(
-        auto_now_add=True, 
-        help_text='Fecha y hora en que se realizó el pedido.'
-    )
-    fecha_entrega_deseada = models.DateField(
-        help_text='Fecha deseada para la entrega del pedido.'
-    )
-    direccion_entrega = models.CharField(
-        max_length=250, 
-        help_text='Dirección de entrega del pedido.'
-    )
-    ciudad_entrega = models.CharField(
-        max_length=100, 
-        help_text='Ciudad de entrega del pedido.'
-    )
-    codigo_postal_entrega = models.CharField(
-        max_length=10, 
-        help_text='Código postal de la dirección de entrega.'
-    )
-    pagado = models.BooleanField(
-        default=False, 
-        help_text='Indica si el pedido ha sido pagado.'
-    )
+    cliente = models.ForeignKey(Usuario, related_name='pedidos', on_delete=models.CASCADE)
+    fecha = models.DateField()
+    direccion_entrega = models.CharField(max_length=250)
+    ciudad_entrega = models.CharField(max_length=100)
+    codigo_postal_entrega = models.CharField(max_length=10)
+    pagado = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'pedido'
@@ -141,28 +74,11 @@ class Pedido(models.Model):
         return f'Pedido {self.id}'
 
 class Reseña(models.Model):
-    producto = models.ForeignKey(
-        Producto, 
-        related_name='reseñas', 
-        on_delete=models.CASCADE,
-        help_text='Producto al que se refiere la reseña.'
-    )
-    cliente = models.ForeignKey(
-        Usuario, 
-        related_name='reseñas', 
-        on_delete=models.CASCADE,
-        help_text='Cliente que escribió la reseña.'
-    )
-    comentario = models.TextField(
-        help_text='Comentario del cliente sobre el producto.'
-    )
-    calificacion = models.PositiveIntegerField(
-        help_text='Calificación del producto (1-5).'
-    )
-    fecha = models.DateTimeField(
-        auto_now_add=True,
-        help_text='Fecha en que se escribió la reseña.'
-    )
+    producto = models.ForeignKey(Producto, related_name='reseñas', on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Usuario, related_name='reseñas', on_delete=models.CASCADE)
+    comentario = models.TextField()
+    calificacion = models.PositiveIntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'reseña'
@@ -170,5 +86,4 @@ class Reseña(models.Model):
         ordering = ['-fecha']
 
     def __str__(self):
-        return f'Reseña de {self.cliente} para {self.producto}'
-    
+        return f'Reseña de {self.cliente} para {self.producto}'     
