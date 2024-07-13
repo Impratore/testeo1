@@ -21,7 +21,12 @@ class ProductoViewSet(viewsets.ModelViewSet):
 class PedidoViewSet(viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.get_queryset.filter(usuario=self.request.usuario)
 
 class ReseñaViewSet(viewsets.ModelViewSet):
     queryset = Reseña.objects.all()
     serializer_class = ReseñaSerializer
+    permission_classes = [IsAuthenticated]
